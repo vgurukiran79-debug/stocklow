@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Store user account with assigned authorization role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Full name of the user" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "role": { "type": "string", "enum": ["Admin", "Manager", "Cashier"], "description": "System authorization role" },
+        "storeName": { "type": "string", "description": "Associated store or company name" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Inventory product catalog record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Product unique identifier" },
+        "name": { "type": "string", "description": "Product title" },
+        "sku": { "type": "string", "description": "Stock Keeping Unit" },
+        "barcode": { "type": "string", "description": "Barcode identifier" },
+        "categoryId": { "type": "string", "description": "Category identifier" },
+        "categoryName": { "type": "string", "description": "Category name" },
+        "brand": { "type": "string", "description": "Brand or maker" },
+        "purchasePrice": { "type": "number", "description": "Cost purchase price" },
+        "sellingPrice": { "type": "number", "description": "Customer retail price" },
+        "quantity": { "type": "number", "description": "Stock on hand" },
+        "minimumStock": { "type": "number", "description": "Safety threshold" },
+        "unit": { "type": "string", "description": "Unit of measure" },
+        "createdBy": { "type": "string", "description": "User UID who created this item" }
+      },
+      "required": ["name", "sku", "sellingPrice"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Counter point-of-sale invoice record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Sale record ID" },
+        "invoiceNumber": { "type": "string", "description": "Invoice number" },
+        "customerId": { "type": "string", "description": "Customer identifier" },
+        "customerName": { "type": "string", "description": "Customer name" },
+        "subtotal": { "type": "number", "description": "Subtotal before tax" },
+        "tax": { "type": "number", "description": "Tax calculated" },
+        "total": { "type": "number", "description": "Total amount paid" },
+        "paymentMethod": { "type": "string", "description": "UPI, Cash, Card, etc." },
+        "paymentStatus": { "type": "string", "description": "Payment status" },
+        "createdById": { "type": "string", "description": "User UID who recorded the sale" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["invoiceNumber", "total", "paymentMethod"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User identity and role-based authorization record"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Inventory products managed by authorized staff"
+    },
+    "/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "Counter transactions logged by cashiers and managers"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "StockFlow - Digital Inventory & Sales Management System",
+  "description": "Track Stock. Manage Sales. Grow Smarter. Complete digital inventory and sales management system with POS, stock ledger, real-time analytics, and AI business insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Role-based helper
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (getUserRole() == 'Admin' || request.auth.token.email == 'owner@store.com');
+    }
+
+    function isManagerOrAdmin() {
+      return isSignedIn() && (getUserRole() == 'Admin' || getUserRole() == 'Manager');
+    }
+
+    // User profiles & authorization roles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Inventory Products
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow create, update: if isManagerOrAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Sales Records & Invoices
+    match /sales/{saleId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isManagerOrAdmin();
+    }
+
+    // Customers
+    match /customers/{customerId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isManagerOrAdmin();
+    }
+
+    // Suppliers
+    match /suppliers/{supplierId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isManagerOrAdmin();
+    }
+
+    // Business settings
+    match /businesses/{businessId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Audit logs & inventory transactions
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // Alerts
+    match /alerts/{alertId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Default safety catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
